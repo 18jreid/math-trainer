@@ -18,8 +18,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Math Trainer",
-  description: "Quick mental math training for work calculations.",
+  title: "One Wellness Math Trainer",
+  description: "Clinic math training for One Wellness Utah — pellets, injections, semaglutide, Acousana and more.",
 };
 
 export default function RootLayout({

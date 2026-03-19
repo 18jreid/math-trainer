@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Divide, X, Plus, Minus, Shuffle, ChevronRight, Zap } from "lucide-react";
+import { Divide, X, Plus, Minus, Shuffle, ChevronRight, Stethoscope } from "lucide-react";
 import type { Operation, Difficulty } from "@/lib/questions";
 
 interface HomeScreenProps {
@@ -14,28 +14,28 @@ const OPERATIONS: { id: Operation; label: string; icon: React.ReactNode; color: 
     label: "Division",
     icon: <Divide className="w-6 h-6" />,
     color: "cyan",
-    desc: "2200 units ÷ 200 per case = ?",
+    desc: "300 B12 doses ÷ 10 per kit = ?",
   },
   {
     id: "multiplication",
     label: "Multiplication",
     icon: <X className="w-6 h-6" />,
     color: "purple",
-    desc: "15 pallets × 80 items = ?",
+    desc: "12 patients × 8 Acousana sessions = ?",
   },
   {
     id: "addition",
     label: "Addition",
     icon: <Plus className="w-6 h-6" />,
     color: "green",
-    desc: "1,450 in stock + 800 received = ?",
+    desc: "1,200 pellets + 800 restocked = ?",
   },
   {
     id: "subtraction",
     label: "Subtraction",
     icon: <Minus className="w-6 h-6" />,
     color: "orange",
-    desc: "3,000 on hand − 750 shipped = ?",
+    desc: "500 semaglutide units − 180 dispensed = ?",
   },
   {
     id: "mixed",
@@ -84,16 +84,16 @@ export default function HomeScreen({ onStart }: HomeScreenProps) {
         {/* Header */}
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-2 mb-3">
-            <Zap className="w-5 h-5 text-[#00e5ff]" />
+            <Stethoscope className="w-5 h-5 text-[#00e5ff]" />
             <span className="text-[#00e5ff] text-sm font-mono tracking-widest uppercase">
-              Work Math Trainer
+              One Wellness Math Trainer
             </span>
           </div>
           <h1 className="text-4xl font-bold text-[#e6edf3] mb-2 glow-cyan">
-            Quick Calculations
+            Clinic Math Trainer
           </h1>
           <p className="text-[#8b949e] text-sm max-w-sm mx-auto">
-            Real-world inventory &amp; order math. Get faster with practice.
+            Real One Wellness scenarios — pellets, B12, semaglutide, Acousana &amp; more.
           </p>
         </div>
 

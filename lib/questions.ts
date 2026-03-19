@@ -8,9 +8,7 @@ export interface Question {
   hint?: string;
 }
 
-const EASY_DIVISORS = [2, 4, 5, 10, 20, 25, 50, 100];
-const MEDIUM_DIVISORS = [2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 50, 100, 200];
-const HARD_DIVISORS = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 20, 25, 50, 100, 200, 250, 500];
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -21,59 +19,88 @@ function rand(min: number, max: number, step = 1): number {
   return min + Math.floor(Math.random() * (steps + 1)) * step;
 }
 
-const divisionPrompts = [
-  (total: number, per: number) =>
-    `We need ${total.toLocaleString()} units. Each case holds ${per}. How many cases do we need to order?`,
-  (total: number, per: number) =>
-    `There are ${total.toLocaleString()} items to pack. Each box holds ${per}. How many boxes are needed?`,
-  (total: number, per: number) =>
-    `We received an order for ${total.toLocaleString()} pieces. Each pallet holds ${per}. How many pallets do we need?`,
-  (total: number, per: number) =>
-    `${total.toLocaleString()} units need to ship. Each shipment contains ${per} units. How many shipments is that?`,
-  (total: number, per: number) =>
-    `A customer wants ${total.toLocaleString()} items. They come in packs of ${per}. How many packs do they need?`,
-  (total: number, per: number) =>
-    `We need to fill an order of ${total.toLocaleString()} parts. Each kit contains ${per} parts. How many kits?`,
-  (total: number, per: number) =>
-    `${total.toLocaleString()} units are on the floor. They are grouped in sets of ${per}. How many sets?`,
+// ─── Divisors by difficulty ──────────────────────────────────────────────────
+
+const EASY_DIVISORS   = [2, 4, 5, 10, 20, 25, 50, 100];
+const MEDIUM_DIVISORS = [2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 50, 100];
+const HARD_DIVISORS   = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 20, 25, 50, 100, 200, 250];
+
+// ─── Division prompts ────────────────────────────────────────────────────────
+// "We have [total], each [unit] holds [per], how many [units]?"
+
+const divisionPrompts: ((total: number, per: number) => string)[] = [
+  // Biote NutraPack
+  (t, p) => `We received ${t.toLocaleString()} NutraPack supplement capsules. Each daily packet contains ${p} capsules. How many day-supply packets can we make?`,
+  // B12 vials
+  (t, p) => `The clinic has ${t.toLocaleString()} B12 injection doses in stock. Each patient kit contains ${p} doses. How many patient kits can we fill?`,
+  // Hormone pellet insertions
+  (t, p) => `Dr. Rodgers has ${t.toLocaleString()} hormone pellets to distribute. Each insertion procedure uses ${p} pellets. How many procedures can be performed?`,
+  // IV bags
+  (t, p) => `We have ${t.toLocaleString()} mL of IV solution prepared. Each IV bag holds ${p} mL. How many IV bags can we fill?`,
+  // Semaglutide doses
+  (t, p) => `The pharmacy delivered ${t.toLocaleString()} units of semaglutide. Each patient's weekly dose is ${p} units. How many weekly doses is that?`,
+  // Acousana sessions
+  (t, p) => `We have ${t.toLocaleString()} Acousana therapy credits available. Each patient requires ${p} sessions per treatment protocol. How many patients can we treat?`,
+  // Vitamin D vials
+  (t, p) => `We ordered ${t.toLocaleString()} Vitamin D injection doses. Each box holds ${p} doses. How many boxes did we receive?`,
+  // Weight loss check-ins
+  (t, p) => `There are ${t.toLocaleString()} Mastery Program check-in appointments to schedule. Each provider can see ${p} patients per day. How many provider-days are needed?`,
+  // Supplement orders
+  (t, p) => `We need to pack ${t.toLocaleString()} supplement capsules for patient home delivery. Each bottle holds ${p} capsules. How many bottles do we need?`,
+  // Consult slots
+  (t, p) => `We have ${t.toLocaleString()} minutes of consultation time available this week. Each new patient consult takes ${p} minutes. How many new patients can we see?`,
 ];
 
-const multiplicationPrompts = [
-  (count: number, per: number) =>
-    `We ordered ${count} cases. Each case contains ${per} units. How many units total?`,
-  (count: number, per: number) =>
-    `There are ${count} pallets. Each holds ${per} items. What is the total item count?`,
-  (count: number, per: number) =>
-    `We have ${count} boxes, each with ${per} pieces inside. How many pieces do we have?`,
-  (count: number, per: number) =>
-    `${count} shipments arrived. Each contains ${per} units. How many units did we receive?`,
-  (count: number, per: number) =>
-    `A supplier sent ${count} bundles of ${per} items each. What is the total?`,
-  (count: number, per: number) =>
-    `We need to fill ${count} orders, each requiring ${per} units. How many units total?`,
+// ─── Multiplication prompts ──────────────────────────────────────────────────
+
+const multiplicationPrompts: ((count: number, per: number) => string)[] = [
+  // NutraPack monthly supply
+  (c, p) => `We are fulfilling orders for ${c} patients enrolled in the Mastery Program. Each patient needs a ${p}-day NutraPack supply. How many daily packets do we need to pack total?`,
+  // B12 kits
+  (c, p) => `${c} patients are starting B12 injection therapy. Each patient's starter kit includes ${p} pre-filled syringes. How many syringes do we need to prepare?`,
+  // Acousana sessions
+  (c, p) => `${c} new patients are beginning Acousana therapy. Each patient's full protocol is ${p} sessions. How many total sessions will be scheduled?`,
+  // Semaglutide weekly doses
+  (c, p) => `We have ${c} active semaglutide patients. Each patient uses ${p} units per week. How many total units do we dispense per week?`,
+  // Pellet revenue
+  (c, p) => `The clinic performed ${c} women's hormone pellet insertions this month at $${p} each. What is the total revenue?`,
+  // Supplement capsules
+  (c, p) => `We are shipping supplement orders to ${c} patients. Each order contains ${p} capsules. How many capsules will we ship in total?`,
+  // IV therapy prep
+  (c, p) => `${c} patients are scheduled for IV vitamin therapy today. Each IV bag requires ${p} mL of solution. How many mL of solution do we need to prepare?`,
+  // Consultation blocks
+  (c, p) => `We have ${c} providers on staff today, each with ${p} available consultation slots. How many patient slots are available clinic-wide?`,
+  // Weight loss program revenue
+  (c, p) => `${c} patients enrolled in the One Wellness Mastery Program at $${p} each. What is the total program revenue?`,
 ];
 
-const additionPrompts = [
-  (a: number, b: number) =>
-    `We have ${a.toLocaleString()} units in stock and just received a shipment of ${b.toLocaleString()} more. What is our new total?`,
-  (a: number, b: number) =>
-    `Morning count was ${a.toLocaleString()} items. We added ${b.toLocaleString()} during the day. What is the end-of-day count?`,
-  (a: number, b: number) =>
-    `Warehouse A has ${a.toLocaleString()} units. Warehouse B has ${b.toLocaleString()}. What is the combined inventory?`,
-  (a: number, b: number) =>
-    `We produced ${a.toLocaleString()} units this week and ${b.toLocaleString()} last week. What is the two-week total?`,
+// ─── Addition prompts ────────────────────────────────────────────────────────
+
+const additionPrompts: ((a: number, b: number) => string)[] = [
+  (a, b) => `We had ${a.toLocaleString()} B12 injection doses in stock this morning. A shipment of ${b.toLocaleString()} more just arrived. What is our new B12 inventory?`,
+  (a, b) => `Dr. Rodgers has performed ${a.toLocaleString()} hormone pellet insertions to date. He completed ${b.toLocaleString()} more this month. What is his new total?`,
+  (a, b) => `The clinic had ${a.toLocaleString()} NutraPack capsules on hand. We just received a restock order of ${b.toLocaleString()} capsules. What is the total capsule count?`,
+  (a, b) => `${a.toLocaleString()} patients are currently enrolled in the weight loss program. ${b.toLocaleString()} new patients joined this week. How many total active patients are there?`,
+  (a, b) => `We dispensed ${a.toLocaleString()} units of semaglutide last month and ${b.toLocaleString()} units this month. What is the two-month total?`,
+  (a, b) => `The clinic earned $${a.toLocaleString()} from hormone pellet procedures and $${b.toLocaleString()} from Mastery Program enrollments this week. What is the combined revenue?`,
+  (a, b) => `We have ${a.toLocaleString()} mL of IV solution in the main fridge and ${b.toLocaleString()} mL in the back storage. What is the total IV solution on hand?`,
+  (a, b) => `${a.toLocaleString()} Acousana sessions were completed in the first half of the month and ${b.toLocaleString()} in the second half. What was the monthly total?`,
 ];
 
-const subtractionPrompts = [
-  (a: number, b: number) =>
-    `We started with ${a.toLocaleString()} units in stock. We shipped out ${b.toLocaleString()}. How many remain?`,
-  (a: number, b: number) =>
-    `Inventory shows ${a.toLocaleString()} items. An audit found ${b.toLocaleString()} missing. What is the adjusted count?`,
-  (a: number, b: number) =>
-    `We need ${a.toLocaleString()} units for an order but only have ${b.toLocaleString()} in stock. How many do we still need?`,
-  (a: number, b: number) =>
-    `A batch of ${a.toLocaleString()} items was produced. ${b.toLocaleString()} were rejected. How many passed?`,
+// ─── Subtraction prompts ─────────────────────────────────────────────────────
+
+const subtractionPrompts: ((a: number, b: number) => string)[] = [
+  (a, b) => `We started the week with ${a.toLocaleString()} B12 injection doses. We administered ${b.toLocaleString()} doses to patients. How many doses remain?`,
+  (a, b) => `The clinic had ${a.toLocaleString()} semaglutide units in stock. We dispensed ${b.toLocaleString()} units this week. How many units are left?`,
+  (a, b) => `We ordered ${a.toLocaleString()} NutraPack capsules for the month. So far ${b.toLocaleString()} capsules have been packed into patient orders. How many capsules are still unpacked?`,
+  (a, b) => `There are ${a.toLocaleString()} minutes of appointment time available this week. ${b.toLocaleString()} minutes have already been booked. How many minutes of open availability remain?`,
+  (a, b) => `We received ${a.toLocaleString()} Vitamin D injection doses. ${b.toLocaleString()} have already been administered. How many doses are still available?`,
+  (a, b) => `The Mastery Program budget for supplements this quarter is $${a.toLocaleString()}. We have spent $${b.toLocaleString()} so far. How much budget remains?`,
+  (a, b) => `We had ${a.toLocaleString()} hormone pellets in stock. Dr. Rodgers used ${b.toLocaleString()} for insertion procedures this week. How many pellets remain?`,
+  (a, b) => `${a.toLocaleString()} patients were enrolled in the weight loss program at the start of the quarter. ${b.toLocaleString()} have since completed the program. How many are still active?`,
 ];
+
+// ─── Generators ─────────────────────────────────────────────────────────────
 
 function generateDivision(difficulty: Difficulty): Question {
   const divisors =
@@ -115,7 +142,7 @@ function generateMultiplication(difficulty: Difficulty): Question {
 
 function generateAddition(difficulty: Difficulty): Question {
   const step = difficulty === "easy" ? 50 : difficulty === "medium" ? 25 : 1;
-  const max = difficulty === "easy" ? 1000 : difficulty === "medium" ? 5000 : 10000;
+  const max  = difficulty === "easy" ? 1000 : difficulty === "medium" ? 5000 : 10000;
   const a = rand(100, max, step);
   const b = rand(50, max / 2, step);
 
@@ -129,7 +156,7 @@ function generateAddition(difficulty: Difficulty): Question {
 
 function generateSubtraction(difficulty: Difficulty): Question {
   const step = difficulty === "easy" ? 50 : difficulty === "medium" ? 25 : 1;
-  const max = difficulty === "easy" ? 1000 : difficulty === "medium" ? 5000 : 10000;
+  const max  = difficulty === "easy" ? 1000 : difficulty === "medium" ? 5000 : 10000;
   const a = rand(200, max, step);
   const b = rand(50, a - 50, step);
 
@@ -146,10 +173,10 @@ export function generateQuestion(operation: Operation, difficulty: Difficulty): 
   const op = operation === "mixed" ? pick(ops) : operation;
 
   switch (op) {
-    case "division": return generateDivision(difficulty);
+    case "division":       return generateDivision(difficulty);
     case "multiplication": return generateMultiplication(difficulty);
-    case "addition": return generateAddition(difficulty);
-    case "subtraction": return generateSubtraction(difficulty);
+    case "addition":       return generateAddition(difficulty);
+    case "subtraction":    return generateSubtraction(difficulty);
   }
 }
 
