@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import HomeScreen from "@/components/HomeScreen";
 import TrainingSession, { type SessionResult } from "@/components/TrainingSession";
 import ResultsScreen from "@/components/ResultsScreen";
@@ -28,14 +28,14 @@ interface NewRecord {
 }
 
 export default function Page() {
-  const [view, setView]             = useState<AppView>("home");
-  const [questions, setQuestions]   = useState<Question[]>([]);
-  const [lastConfig, setLastConfig] = useState<LastConfig | null>(null);
-  const [results, setResults]       = useState<SessionResult[]>([]);
-  const [newRecord, setNewRecord]   = useState<NewRecord | null>(null);
+  const [view, setView]           = useState<AppView>("home");
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const lastConfigRef             = useRef<LastConfig | null>(null);
+  const [results, setResults]     = useState<SessionResult[]>([]);
+  const [newRecord, setNewRecord] = useState<NewRecord | null>(null);
 
   const startSession = useCallback((qs: Question[], op: Operation, diff: Difficulty, isDaily = false) => {
-    setLastConfig({ op, diff, count: qs.length, isDaily });
+    lastConfigRef.current = { op, diff, count: qs.length, isDaily };
     setQuestions(qs);
     setNewRecord(null);
     setView("session");
@@ -48,6 +48,7 @@ export default function Page() {
   const handleFinish = useCallback((sessionResults: SessionResult[]) => {
     setResults(sessionResults);
 
+    const lastConfig = lastConfigRef.current;
     if (lastConfig) {
       const { op, diff, isDaily } = lastConfig;
       const correct   = sessionResults.filter((r) => r.correct).length;
@@ -83,12 +84,13 @@ export default function Page() {
     }
 
     setView("results");
-  }, [lastConfig]);
+  }, []);
 
   const handleRetry = useCallback(() => {
+    const lastConfig = lastConfigRef.current;
     if (!lastConfig) return;
     startSession(generateQuestions(lastConfig.op, lastConfig.diff, lastConfig.count), lastConfig.op, lastConfig.diff, false);
-  }, [lastConfig, startSession]);
+  }, [startSession]);
 
   const handleHome = useCallback(() => setView("home"), []);
 

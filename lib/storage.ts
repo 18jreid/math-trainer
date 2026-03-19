@@ -77,7 +77,9 @@ function write<T>(key: string, value: T): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(P + key, JSON.stringify(value));
-  } catch {}
+  } catch (e) {
+    console.error("[storage] write failed for key", key, e);
+  }
 }
 
 // ─── Session history ─────────────────────────────────────────────────────────
