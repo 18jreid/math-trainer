@@ -48,39 +48,44 @@ export default function Page() {
   const handleFinish = useCallback((sessionResults: SessionResult[]) => {
     setResults(sessionResults);
 
-    const lastConfig = lastConfigRef.current;
-    if (lastConfig) {
-      const { op, diff, isDaily } = lastConfig;
-      const correct   = sessionResults.filter((r) => r.correct).length;
-      const total     = sessionResults.length;
-      const scorePct  = Math.round((correct / total) * 100);
-      const avgTimeMs = Math.round(sessionResults.reduce((s, r) => s + r.timeMs, 0) / total);
+    try {
+      const lastConfig = lastConfigRef.current;
+      if (lastConfig) {
+        const { op, diff, isDaily } = lastConfig;
+        const correct   = sessionResults.filter((r) => r.correct).length;
+        const total     = sessionResults.length;
+        const scorePct  = Math.round((correct / total) * 100);
+        const avgTimeMs = Math.round(sessionResults.reduce((s, r) => s + r.timeMs, 0) / total);
 
-      // Save session record
-      saveSession({
-        id: crypto.randomUUID(),
-        date: getLocalDate(),
-        timestamp: Date.now(),
-        operation: op,
-        difficulty: diff,
-        questionCount: total,
-        correctCount: correct,
-        scorePct,
-        avgTimeMs,
-        isDaily,
-        perOp: sessionResults.map((r) => ({
-          operation: r.question.operation,
-          correct: r.correct,
-          timeMs: r.timeMs,
-        })),
-      });
+        const id = typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-      // Check personal bests
-      const pb = checkAndSavePersonalBest(op, diff, scorePct, avgTimeMs);
-      setNewRecord({ ...pb, op, diff });
+        saveSession({
+          id,
+          date: getLocalDate(),
+          timestamp: Date.now(),
+          operation: op,
+          difficulty: diff,
+          questionCount: total,
+          correctCount: correct,
+          scorePct,
+          avgTimeMs,
+          isDaily,
+          perOp: sessionResults.map((r) => ({
+            operation: r.question.operation,
+            correct: r.correct,
+            timeMs: r.timeMs,
+          })),
+        });
 
-      // Mark daily complete if applicable
-      if (isDaily) markDailyComplete();
+        const pb = checkAndSavePersonalBest(op, diff, scorePct, avgTimeMs);
+        setNewRecord({ ...pb, op, diff });
+
+        if (isDaily) markDailyComplete();
+      }
+    } catch (e) {
+      console.error("[handleFinish] error saving session:", e);
     }
 
     setView("results");

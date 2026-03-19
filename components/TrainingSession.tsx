@@ -57,12 +57,14 @@ export default function TrainingSession({ questions, onFinish, onHome }: Trainin
     setPhase("question");
   }, [index]);
 
+  const pendingResultsRef = React.useRef<SessionResult[] | null>(null);
+
   const submit = useCallback(() => {
     if (phase !== "question" || input === "") return;
     const num       = parseInt(input, 10);
     const isCorrect = num === current.answer;
 
-    if (isCorrect) playCorrect(); else playWrong();
+    try { if (isCorrect) playCorrect(); else playWrong(); } catch {}
 
     const result: SessionResult = {
       question: current,
@@ -73,6 +75,10 @@ export default function TrainingSession({ questions, onFinish, onHome }: Trainin
     const newResults = [...results, result];
     setResults(newResults);
     setPhase(isCorrect ? "correct" : "wrong");
+
+    if (index + 1 >= questions.length) {
+      pendingResultsRef.current = newResults;
+    }
 
     setTimeout(() => {
       if (index + 1 >= questions.length) onFinish(newResults);
@@ -180,8 +186,18 @@ export default function TrainingSession({ questions, onFinish, onHome }: Trainin
             <AnimatePresence>
               {phase === "correct" && (
                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-                  className="flex items-center justify-center gap-2 text-[#22c55e] font-bold text-base glow-green">
-                  <CheckCircle2 className="w-5 h-5" /> Correct — well done!
+                  className="flex flex-col items-center gap-2">
+                  <div className="flex items-center gap-2 text-[#22c55e] font-bold text-base glow-green">
+                    <CheckCircle2 className="w-5 h-5" /> Correct — well done!
+                  </div>
+                  {pendingResultsRef.current && (
+                    <button
+                      onClick={() => onFinish(pendingResultsRef.current!)}
+                      className="mt-1 text-xs text-[#6b9ea8] hover:text-[#00c9a7] underline cursor-pointer transition-colors"
+                    >
+                      View Results →
+                    </button>
+                  )}
                 </motion.div>
               )}
               {phase === "wrong" && (
@@ -192,6 +208,14 @@ export default function TrainingSession({ questions, onFinish, onHome }: Trainin
                     <span className="text-[#e2f4f1]">{current.answer.toLocaleString()}</span>
                   </div>
                   {current.hint && <p className="text-[#6b9ea8] font-mono text-xs">{current.hint}</p>}
+                  {pendingResultsRef.current && (
+                    <button
+                      onClick={() => onFinish(pendingResultsRef.current!)}
+                      className="mt-1 text-xs text-[#6b9ea8] hover:text-[#00c9a7] underline cursor-pointer transition-colors"
+                    >
+                      View Results →
+                    </button>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
