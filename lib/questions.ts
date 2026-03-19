@@ -187,3 +187,50 @@ export function generateQuestions(
 ): Question[] {
   return Array.from({ length: count }, () => generateQuestion(operation, difficulty));
 }
+
+// Used by the Custom Scenario Builder — generates questions with user-supplied numbers
+export function generateCustomQuestion(
+  operation: Exclude<Operation, "mixed">,
+  a: number,
+  b: number,
+): Question {
+  switch (operation) {
+    case "division":
+      return {
+        prompt: pick(divisionPrompts)(a, b),
+        answer: Math.round(a / b),
+        operation: "division",
+        hint: `${a.toLocaleString()} ÷ ${b}`,
+      };
+    case "multiplication":
+      return {
+        prompt: pick(multiplicationPrompts)(a, b),
+        answer: a * b,
+        operation: "multiplication",
+        hint: `${a} × ${b}`,
+      };
+    case "addition":
+      return {
+        prompt: pick(additionPrompts)(a, b),
+        answer: a + b,
+        operation: "addition",
+        hint: `${a.toLocaleString()} + ${b.toLocaleString()}`,
+      };
+    case "subtraction":
+      return {
+        prompt: pick(subtractionPrompts)(a, b),
+        answer: a - b,
+        operation: "subtraction",
+        hint: `${a.toLocaleString()} − ${b.toLocaleString()}`,
+      };
+  }
+}
+
+export function generateCustomQuestions(
+  operation: Exclude<Operation, "mixed">,
+  a: number,
+  b: number,
+  count: number,
+): Question[] {
+  return Array.from({ length: count }, () => generateCustomQuestion(operation, a, b));
+}
