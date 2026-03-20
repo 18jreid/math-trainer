@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Home, TrendingUp, CalendarDays, FlaskConical, BookOpenText, Volume2, VolumeX } from "lucide-react";
+import { Home, TrendingUp, CalendarDays, FlaskConical, BookOpenText, Stethoscope, Volume2, VolumeX } from "lucide-react";
 import { loadSoundEnabled, saveSoundEnabled } from "@/lib/storage";
 
 export type NavView = "home" | "progress" | "daily" | "scenarios";
@@ -49,11 +49,18 @@ export default function AppNav({ current, onNavigate }: AppNavProps) {
           );
         })}
 
+        {/* Services link */}
+        <a
+          href="/services"
+          className="flex-1 flex flex-col items-center gap-0.5 py-3 text-[#163040] hover:text-[#6b9ea8] transition-colors cursor-pointer"
+        >
+          <Stethoscope className="w-5 h-5" />
+          <span className="text-[9px] font-mono uppercase tracking-wider">Services</span>
+        </a>
+
         {/* Reference link */}
         <a
           href="/reference"
-          target="_blank"
-          rel="noopener noreferrer"
           className="flex-1 flex flex-col items-center gap-0.5 py-3 text-[#163040] hover:text-[#6b9ea8] transition-colors cursor-pointer"
         >
           <BookOpenText className="w-5 h-5" />
